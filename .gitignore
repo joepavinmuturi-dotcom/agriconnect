@@ -3,3 +3,8 @@ node_modules/
 *.db
 public/uploads/*
 !public/uploads/.gitkeep
+
+echo backups/ >> .gitignore
+git add scripts .gitignore
+git commit -m "Add database backup script"
+git push
