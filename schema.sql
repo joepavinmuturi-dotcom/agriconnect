@@ -1,0 +1,50 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('farmer','buyer','admin')),
+  phone TEXT,
+  location TEXT,
+  bio TEXT,
+  approved INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS produce (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  farmer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  category_id INTEGER NOT NULL REFERENCES categories(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  price REAL NOT NULL CHECK (price > 0),
+  quantity INTEGER NOT NULL CHECK (quantity >= 0),
+  unit TEXT NOT NULL DEFAULT 'kg',
+  photo TEXT,
+  location TEXT,
+  approved INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  buyer_id INTEGER NOT NULL REFERENCES users(id),
+  total REAL NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Placed' CHECK (status IN ('Placed','Confirmed','Dispatched','Delivered')),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  produce_id INTEGER NOT NULL REFERENCES produce(id),
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  unit_price REAL NOT NULL
+);
